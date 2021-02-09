@@ -16,7 +16,7 @@ x = 0.0
 y = 0.0
 a = 6
 b = 6
-mode = "map"
+mode = "sat"
 params = {
     "ll": str(x) + "," + str(y),
     "spn": str(a) + "," + str(b),
