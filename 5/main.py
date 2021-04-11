@@ -35,6 +35,8 @@ draw_map(params)
 pygame.init()
 map_file = "map.png"
 address = ''
+index = ''
+ind = False
 screen = pygame.display.set_mode((600, 500))
 screen.blit(pygame.image.load(map_file), (0, 0))
 pygame.display.flip()
@@ -50,13 +52,14 @@ input_box = pygame.Rect(0, 450, 500, 50)
 search = pygame.Rect(500, 450, 100, 50)
 delete = pygame.Rect(500, 400, 100, 50)
 address_r = pygame.Rect(110, 0, 490, 50)
+index_r = pygame.Rect(550, 50, 50, 50)
 color_inactive = pygame.Color('lightskyblue3')
 color_active = pygame.Color('dodgerblue2')
 color = color_inactive
 act_col = (137, 144, 236)
 pass_col = (200, 200, 200)
 map_col = act_col
-sat_col = skl_col = pass_col
+ind_col = sat_col = skl_col = pass_col
 
 active = False
 text = ''
@@ -81,6 +84,17 @@ while running:
                 sat_col = map_col = pass_col
                 params['l'] = 'sat,skl'
                 draw_map(params)
+            if index_r.collidepoint(event.pos):
+                if ind_col == pass_col:
+                    ind_col = act_col
+                    address += ' ' + index
+                    ind = True
+                else:
+                    ind = False
+                    if f' {index}' in address:
+                        address = address.replace(' ' + index, '')
+                    address = address.replace(index, '')
+                    ind_col = pass_col
             if input_box.collidepoint(event.pos):
                 active = not active
             else:
@@ -88,6 +102,7 @@ while running:
             if delete.collidepoint(event.pos):
                 params['pt'] = ''
                 address = ''
+                index = ''
                 text = ''
                 draw_map(params)
             if search.collidepoint(event.pos):
@@ -99,6 +114,9 @@ while running:
                 toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
                 toponym_coodrinates = toponym["Point"]["pos"]
                 address = toponym['metaDataProperty']['GeocoderMetaData']['text']
+                index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                if ind:
+                    address += ' ' + index
                 print(toponym_coodrinates)
                 x, y = map(float, toponym_coodrinates.split())
                 params["ll"] = str(x) + "," + str(y)
@@ -174,6 +192,7 @@ while running:
     txt_search = font.render('Искать', True, (0, 0, 0))
     txt_delete = font.render("Сброс", True, (0, 0, 0))
     txt_ad = map_font.render('Адрес:', True, (0, 0, 0))
+    index_txt = map_font.render('Индекс', True, (0, 0, 0))
     map_txt = map_font.render('Схема', True, (0, 0, 0))
     sat_txt = map_font.render('Спутник', True, (0, 0, 0))
     skl_txt = map_font.render('Гибрид', True, (0, 0, 0))
@@ -186,12 +205,14 @@ while running:
     pygame.draw.rect(screen, (200, 200, 200), search)
     pygame.draw.rect(screen, (160, 160, 160), delete)
     pygame.draw.rect(screen, color, input_box, 2)
+    pygame.draw.rect(screen, ind_col, index_r)
     screen.blit(txt_search, (search.x + 15, search.y + 15))
     screen.blit(address_txt, (address_r.x + 15, address_r.y + 15))
     screen.blit(txt_delete, (delete.x + 15, delete.y + 15))
     screen.blit(map_txt, (map_map.x + 5, map_map.y + 20))
     screen.blit(sat_txt, (map_sat.x, map_sat.y + 20))
     screen.blit(skl_txt, (map_skl.x + 2, map_skl.y + 20))
+    screen.blit(index_txt, (index_r.x + 2, index_r.y + 20))
     screen.blit(txt_ad, (58, 20))
     pygame.display.flip()
 
