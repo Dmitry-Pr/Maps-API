@@ -34,12 +34,14 @@ params = {
 draw_map(params)
 pygame.init()
 map_file = "map.png"
+address = ''
 screen = pygame.display.set_mode((600, 500))
 screen.blit(pygame.image.load(map_file), (0, 0))
 pygame.display.flip()
 # Переключаем экран и ждем закрытия окна.
 font = pygame.font.Font(None, 32)
 map_font = pygame.font.Font(None, 18)
+ad_font = pygame.font.Font(None, 26)
 clock = pygame.time.Clock()
 map_map = pygame.Rect(0, 0, 50, 50)
 map_sat = pygame.Rect(0, 50, 50, 50)
@@ -47,6 +49,7 @@ map_skl = pygame.Rect(0, 100, 50, 50)
 input_box = pygame.Rect(0, 450, 500, 50)
 search = pygame.Rect(500, 450, 100, 50)
 delete = pygame.Rect(500, 400, 100, 50)
+address_r = pygame.Rect(110, 0, 490, 50)
 color_inactive = pygame.Color('lightskyblue3')
 color_active = pygame.Color('dodgerblue2')
 color = color_inactive
@@ -84,6 +87,7 @@ while running:
                 active = False
             if delete.collidepoint(event.pos):
                 params['pt'] = ''
+                address = ''
                 text = ''
                 draw_map(params)
             if search.collidepoint(event.pos):
@@ -91,8 +95,10 @@ while running:
                 response = requests.get(
                     "https://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&format=json&geocode=" + text)
                 json_response = response.json()
+                print(json_response)
                 toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
                 toponym_coodrinates = toponym["Point"]["pos"]
+                address = toponym['metaDataProperty']['GeocoderMetaData']['text']
                 print(toponym_coodrinates)
                 x, y = map(float, toponym_coodrinates.split())
                 params["ll"] = str(x) + "," + str(y)
@@ -167,21 +173,26 @@ while running:
     txt_surface = font.render(text, True, color)
     txt_search = font.render('Искать', True, (0, 0, 0))
     txt_delete = font.render("Сброс", True, (0, 0, 0))
+    txt_ad = map_font.render('Адрес:', True, (0, 0, 0))
     map_txt = map_font.render('Схема', True, (0, 0, 0))
     sat_txt = map_font.render('Спутник', True, (0, 0, 0))
     skl_txt = map_font.render('Гибрид', True, (0, 0, 0))
+    address_txt = ad_font.render(address, True, (0, 0, 0))
     screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+    pygame.draw.rect(screen, (240, 240, 240), address_r)
     pygame.draw.rect(screen, map_col, map_map)
     pygame.draw.rect(screen, sat_col, map_sat)
     pygame.draw.rect(screen, skl_col, map_skl)
     pygame.draw.rect(screen, (200, 200, 200), search)
-    pygame.draw.rect(screen, (200, 200, 200), delete)
+    pygame.draw.rect(screen, (160, 160, 160), delete)
     pygame.draw.rect(screen, color, input_box, 2)
     screen.blit(txt_search, (search.x + 15, search.y + 15))
+    screen.blit(address_txt, (address_r.x + 15, address_r.y + 15))
     screen.blit(txt_delete, (delete.x + 15, delete.y + 15))
     screen.blit(map_txt, (map_map.x + 5, map_map.y + 20))
     screen.blit(sat_txt, (map_sat.x, map_sat.y + 20))
     screen.blit(skl_txt, (map_skl.x + 2, map_skl.y + 20))
+    screen.blit(txt_ad, (58, 20))
     pygame.display.flip()
 
 pygame.quit()
