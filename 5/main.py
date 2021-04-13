@@ -69,6 +69,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                g_p_x = float(params['spn'].split(',')[0]) / 600
+                g_p_y = float(params['spn'].split(',')[1]) / 450
+                print((300 - event.pos[0]) * g_p_x)
             if map_map.collidepoint(event.pos):
                 map_col = act_col
                 sat_col = skl_col = pass_col
@@ -91,7 +95,7 @@ while running:
                     ind = True
                 else:
                     ind = False
-                    if f' {index}' in address:
+                    if f' {index}' in address and index != '':
                         address = address.replace(' ' + index, '')
                     address = address.replace(index, '')
                     ind_col = pass_col
