@@ -114,7 +114,10 @@ while running:
                 toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
                 toponym_coodrinates = toponym["Point"]["pos"]
                 address = toponym['metaDataProperty']['GeocoderMetaData']['text']
-                index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                try:
+                    index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                except KeyError:
+                    index = ''
                 if ind:
                     address += ' ' + index
                 print(toponym_coodrinates)
