@@ -22,8 +22,8 @@ def draw_map(params):
 
 x = 30.315868
 y = 59.939095
-a = 2
-b = 2
+a = 2.15
+b = 2.15
 mode = "map"
 params = {
     "ll": str(x) + "," + str(y),
@@ -162,29 +162,29 @@ while running:
                 else:
                     text += event.unicode
             if event.key == pygame.K_PAGEUP:
-                if a - 0.2 > 0 and b - 0.15 > 0:
+                if a - 0.2 > 0 and b - 0.2 > 0:
                     a -= 0.2
-                    b -= 0.15
-                elif a - 0.02 > 0 and b - 0.015 > 0:
+                    b -= 0.2
+                elif a - 0.02 > 0 and b - 0.02 > 0:
                     a -= 0.02
-                    b -= 0.015
-                elif a - 0.002 > 0 and b - 0.0015 > 0:
+                    b -= 0.02
+                elif a - 0.002 > 0 and b - 0.002 > 0:
                     a -= 0.002
-                    b -= 0.0015
+                    b -= 0.002
 
                 print(a, b)
                 params['spn'] = f'{a},{b}'
                 draw_map(params)
             if event.key == pygame.K_PAGEDOWN:
-                if a - 0.2 > 0 and b - 0.15 > 0 and a + 0.2 < 90:
+                if a - 0.2 > 0 and a + 0.2 < 90:
                     a += 0.2
-                    b += 0.15
-                elif a - 0.02 > 0 and b - 0.015 > 0 and a + 0.02 < 90:
+                    b += 0.2
+                elif a - 0.02 > 0 and a + 0.02 < 90:
                     a += 0.02
-                    b += 0.015
-                elif a - 0.002 > 0 and b - 0.0015 > 0 and a + 0.002 < 90:
+                    b += 0.02
+                elif a - 0.002 > 0 and a + 0.002 < 90:
                     a += 0.002
-                    b += 0.0015
+                    b += 0.002
                 else:
                     a += 0.002
                     b += 0.0015
