@@ -22,14 +22,14 @@ def draw_map(params):
 
 x = 30.315868
 y = 59.939095
-a = 6
-b = 4.5
+a = 2
+b = 2
 mode = "map"
 params = {
     "ll": str(x) + "," + str(y),
     "spn": str(a) + "," + str(b),
     "l": mode,
-    'size': '600,450'
+    'size': '450,450'
 }
 draw_map(params)
 pygame.init()
@@ -37,7 +37,7 @@ map_file = "map.png"
 address = ''
 index = ''
 ind = False
-screen = pygame.display.set_mode((600, 500))
+screen = pygame.display.set_mode((450, 500))
 screen.blit(pygame.image.load(map_file), (0, 0))
 pygame.display.flip()
 # Переключаем экран и ждем закрытия окна.
@@ -48,11 +48,11 @@ clock = pygame.time.Clock()
 map_map = pygame.Rect(0, 0, 50, 50)
 map_sat = pygame.Rect(0, 50, 50, 50)
 map_skl = pygame.Rect(0, 100, 50, 50)
-input_box = pygame.Rect(0, 450, 500, 50)
-search = pygame.Rect(500, 450, 100, 50)
-delete = pygame.Rect(500, 400, 100, 50)
-address_r = pygame.Rect(110, 0, 490, 50)
-index_r = pygame.Rect(550, 50, 50, 50)
+input_box = pygame.Rect(0, 450, 350, 50)
+search = pygame.Rect(350, 450, 100, 50)
+delete = pygame.Rect(350, 400, 100, 50)
+address_r = pygame.Rect(110, 0, 340, 50)
+index_r = pygame.Rect(400, 50, 50, 50)
 color_inactive = pygame.Color('lightskyblue3')
 color_active = pygame.Color('dodgerblue2')
 color = color_inactive
@@ -69,25 +69,25 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                g_p_x = float(params['spn'].split(',')[0]) / 600
-                g_p_y = float(params['spn'].split(',')[1]) / 450
-                print((300 - event.pos[0]) * g_p_x)
             if map_map.collidepoint(event.pos):
                 map_col = act_col
                 sat_col = skl_col = pass_col
                 params['l'] = 'map'
                 draw_map(params)
+                continue
             if map_sat.collidepoint(event.pos):
                 sat_col = act_col
                 map_col = skl_col = pass_col
                 params['l'] = 'sat'
                 draw_map(params)
+                continue
             if map_skl.collidepoint(event.pos):
                 skl_col = act_col
                 sat_col = map_col = pass_col
                 params['l'] = 'sat,skl'
                 draw_map(params)
+                continue
+
             if index_r.collidepoint(event.pos):
                 if ind_col == pass_col:
                     ind_col = act_col
@@ -99,16 +99,23 @@ while running:
                         address = address.replace(' ' + index, '')
                     address = address.replace(index, '')
                     ind_col = pass_col
+                continue
+
             if input_box.collidepoint(event.pos):
                 active = not active
+                color = color_active if active else color_inactive
+                continue
             else:
                 active = False
+                color = color_active if active else color_inactive
             if delete.collidepoint(event.pos):
                 params['pt'] = ''
                 address = ''
                 index = ''
                 text = ''
                 draw_map(params)
+                continue
+
             if search.collidepoint(event.pos):
                 print(text)
                 response = requests.get(
@@ -130,8 +137,24 @@ while running:
                 params['pt'] = str(x) + "," + str(y) + ',round'
                 draw_map(params)
                 pygame.display.flip()
+                continue
+
             # Change the current color of the input box.
             color = color_active if active else color_inactive
+            if event.button == 1:
+                print(event.pos)
+                g_p_x = float(params['spn'].split(',')[0]) / 450
+                g_p_y = float(params['spn'].split(',')[1]) / 450
+                x = (225 - event.pos[0]) * g_p_x * 2
+                y = (225 - event.pos[1]) * g_p_y * 2
+                print(x, y)
+                prev_x, prev_y = params['ll'].split(',')
+                new_x = float(prev_x) - x
+                new_x = update_x(new_x)
+                new_y = float(prev_y) + y
+                params['ll'] = str(new_x) + "," + str(new_y)
+                params['pt'] = params['ll'] + ',round'
+                draw_map(params)
         if event.type == pygame.KEYDOWN:
             if active:
                 if event.key == pygame.K_BACKSPACE:
