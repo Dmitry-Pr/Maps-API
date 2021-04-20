@@ -1,3 +1,4 @@
+import math
 import os
 import pygame
 import requests
@@ -31,6 +32,16 @@ params = {
     "l": mode,
     'size': '450,450'
 }
+search_params = {
+    "apikey": "9cce441c-5f32-40ef-b228-730f8fb654ca",
+    "text": "",
+    "lang": "ru_RU",
+    "type": "biz",
+    'spn': '0.016,0.016',
+    'll': '',
+    'results': '1'
+}
+
 draw_map(params)
 pygame.init()
 map_file = "map.png"
@@ -142,7 +153,8 @@ while running:
             # Change the current color of the input box.
             color = color_active if active else color_inactive
             if event.button == 1:
-                print(event.pos)
+                index = ''
+                text = ''
                 g_p_x = float(params['spn'].split(',')[0]) / 450
                 g_p_y = float(params['spn'].split(',')[1]) / 450
                 nx = (225 - event.pos[0]) * g_p_x * 2.3
@@ -167,6 +179,38 @@ while running:
                     address += ' ' + index
                 print(params)
                 print(x, y, a)
+                draw_map(params)
+            if event.button == 3:
+                index = ''
+                text = ''
+                g_p_x = float(params['spn'].split(',')[0]) / 450
+                g_p_y = float(params['spn'].split(',')[1]) / 450
+                nx = (225 - event.pos[0]) * g_p_x * 2.3
+                ny = (225 - event.pos[1]) * g_p_y * 1.18
+                prev_x, prev_y = params['ll'].split(',')
+                new_x = float(prev_x) - nx
+                new_x = update_x(new_x)
+                new_y = float(prev_y) + ny
+
+                response = requests.get(
+                    "https://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&format=json&geocode="
+                    + str(new_x) + "," + str(new_y))
+                json_response = response.json()
+                toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+                toponym_coodrinates = toponym["Point"]["pos"]
+                s = toponym['metaDataProperty']['GeocoderMetaData']['text']
+
+                params['pt'] = str(new_x) + "," + str(new_y) + ',round'
+                search_params['text'] = s
+                search_params['ll'] = str(x) + "," + str(y)
+                response = requests.get("https://search-maps.yandex.ru/v1/", params=search_params)
+                json_response = response.json()
+                organization = json_response["features"][0]
+                # Название организации.
+                org_name = organization["properties"]["CompanyMetaData"]["name"]
+                print(json_response)
+                address = org_name
+                print(search_params)
                 draw_map(params)
         if event.type == pygame.KEYDOWN:
             if active:
