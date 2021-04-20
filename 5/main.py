@@ -145,15 +145,28 @@ while running:
                 print(event.pos)
                 g_p_x = float(params['spn'].split(',')[0]) / 450
                 g_p_y = float(params['spn'].split(',')[1]) / 450
-                x = (225 - event.pos[0]) * g_p_x * 2
-                y = (225 - event.pos[1]) * g_p_y * 2
-                print(x, y)
+                nx = (225 - event.pos[0]) * g_p_x * 2.3
+                ny = (225 - event.pos[1]) * g_p_y * 1.18
                 prev_x, prev_y = params['ll'].split(',')
-                new_x = float(prev_x) - x
+                new_x = float(prev_x) - nx
                 new_x = update_x(new_x)
-                new_y = float(prev_y) + y
-                params['ll'] = str(new_x) + "," + str(new_y)
-                params['pt'] = params['ll'] + ',round'
+                new_y = float(prev_y) + ny
+                params['pt'] = str(new_x) + "," + str(new_y) + ',round'
+                response = requests.get(
+                    "https://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&format=json&geocode="
+                    + str(new_x) + "," + str(new_y))
+                json_response = response.json()
+                toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+                toponym_coodrinates = toponym["Point"]["pos"]
+                address = toponym['metaDataProperty']['GeocoderMetaData']['text']
+                try:
+                    index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                except KeyError:
+                    index = ''
+                if ind:
+                    address += ' ' + index
+                print(params)
+                print(x, y, a)
                 draw_map(params)
         if event.type == pygame.KEYDOWN:
             if active:
@@ -226,7 +239,7 @@ while running:
     map_txt = map_font.render('Схема', True, (0, 0, 0))
     sat_txt = map_font.render('Спутник', True, (0, 0, 0))
     skl_txt = map_font.render('Гибрид', True, (0, 0, 0))
-    address_txt = ad_font.render(address, True, (0, 0, 0))
+    address_txt = map_font.render(address, True, (0, 0, 0))
     screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
     pygame.draw.rect(screen, (240, 240, 240), address_r)
     pygame.draw.rect(screen, map_col, map_map)
